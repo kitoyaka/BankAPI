@@ -30,3 +30,4 @@ C:\Users\rigry\source\repos\BankAPI\obj\Debug\net9.0\refint\BankAPI.dll
 C:\Users\rigry\source\repos\BankAPI\obj\Debug\net9.0\BankAPI.pdb
 C:\Users\rigry\source\repos\BankAPI\obj\Debug\net9.0\BankAPI.genruntimeconfig.cache
 C:\Users\rigry\source\repos\BankAPI\obj\Debug\net9.0\ref\BankAPI.dll
+C:\Users\rigry\source\repos\BankAPI\obj\Debug\net9.0\BankAPI.sourcelink.json
