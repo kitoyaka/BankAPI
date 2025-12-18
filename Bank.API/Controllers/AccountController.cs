@@ -58,6 +58,56 @@ namespace Bank.API.AddControllers
                 .ToListAsync();
                 return Ok(accounts);
         }
-    }
 
+        [HttpPost("deposit")]
+        public async Task<IActionResult> Deposit(DepositDto request)
+        {
+            var Account = await _context.Accounts.FindAsync(request.AccountId);
+            if (Account == null)
+            {
+                return NotFound("Account not found.");
+            }
+            if(request.Amount <= 0)
+            {
+                return BadRequest("Deposit amount must be greater than zero.");
+            }
+
+            Account.Balance += request.Amount;
+            await _context.SaveChangesAsync();
+            return Ok(new { Message = "Deposit successful", NewBalance = Account.Balance });
+        }
+        
+        [HttpPost("transfer")]
+        public async Task<IActionResult> Transfer(TransferDto request)
+        {
+            var senderAccount = await _context.Accounts.FindAsync(request.SenderAccountId);
+            var receiverAccount = await _context.Accounts.FindAsync(request.ReceiverAccountId);
+            if(senderAccount == null || receiverAccount == null)
+            {
+                return NotFound("One or both accounts not found.");
+            }
+            if(request.Amount <= 0)
+            {
+                return BadRequest("Transfer amount must be greater than zero.");
+            }
+            if(senderAccount.Balance < request.Amount)
+            {
+                return BadRequest("Insufficient funds in sender's account.");
+            }
+            senderAccount.Balance -= request.Amount;
+            receiverAccount.Balance += request.Amount;
+            _context.Accounts.Update(senderAccount);
+            _context.Accounts.Update(receiverAccount);
+            _context.Transactions.Add(new Transaction
+            {
+                SenderAccountId = senderAccount.Id,
+                ReceiverAccountId = receiverAccount.Id,
+                Amount = request.Amount,
+                TransactionDate = DateTime.UtcNow
+            });
+            await _context.SaveChangesAsync();  
+
+            return Ok();
+        }
+    }
 }
