@@ -34,7 +34,7 @@ namespace Bank.Infrastructure.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    IBAN = table.Column<int>(type: "integer", nullable: false),
+                    IBAN = table.Column<string>(type: "text", nullable: false),
                     Balance = table.Column<decimal>(type: "numeric", nullable: false),
                     currency = table.Column<string>(type: "text", nullable: false),
                     UserId = table.Column<int>(type: "integer", nullable: false)

@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Bank.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251217160649_InitialCreate")]
+    [Migration("20251218080829_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -36,8 +36,9 @@ namespace Bank.Infrastructure.Migrations
                     b.Property<decimal>("Balance")
                         .HasColumnType("numeric");
 
-                    b.Property<int>("IBAN")
-                        .HasColumnType("integer");
+                    b.Property<string>("IBAN")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<int>("UserId")
                         .HasColumnType("integer");

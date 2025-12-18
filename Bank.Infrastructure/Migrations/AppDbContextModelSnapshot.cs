@@ -33,8 +33,9 @@ namespace Bank.Infrastructure.Migrations
                     b.Property<decimal>("Balance")
                         .HasColumnType("numeric");
 
-                    b.Property<int>("IBAN")
-                        .HasColumnType("integer");
+                    b.Property<string>("IBAN")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
