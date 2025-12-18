@@ -7,7 +7,7 @@ public class Account
     public decimal Balance { get; set; }
     public string currency { get; set; } = "UAH";
     public int UserId { get; set; }
-    public User User { get; set; }
+    public User? User { get; set; }
 
 }
 }
