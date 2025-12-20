@@ -1,5 +1,10 @@
+using Bank.Core.Entities;
+using Bank.Infrastructure.Services;
+using Bank.Core.Interfaces;
 using Bank.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,9 +16,11 @@ builder.Services.AddSwaggerGen();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
+
+
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
-
+builder.Services.AddScoped<IAccountService, AccountService>();
 
 var app = builder.Build();
 

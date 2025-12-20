@@ -8,10 +8,6 @@ namespace Bank.API.AddControllers
 {
     [Route("api/[controller]")]
     [ApiController]
-
-
-
-    
     public class TransactionController : ControllerBase
     {
         private readonly AppDbContext _context;

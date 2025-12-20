@@ -3,78 +3,56 @@ using Bank.Core.Entities;
 using Bank.Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Bank.Core.Interfaces;
 
-namespace Bank.API.AddControllers
+namespace Bank.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class AccountController : ControllerBase
     {
-        private readonly AppDbContext _context;
-        public AccountController(AppDbContext context)
+        private readonly IAccountService _accountService;
+
+        public AccountController(IAccountService accountService)
         {
-            _context = context;
+            _accountService = accountService;
         }
 
         [HttpPost("create")]
         public async Task<IActionResult> CreateAccount(CreateAccountDto request)
         {
             
-            var user = await _context.Users.FindAsync(request.UserId);
-            if (user == null)
+            try
             {
-                return NotFound("User not found.");
+                await _accountService.CreateAccountAsync(request);
+                return Ok(new { Message = "Account created successfully" });
             }
-
-            var fakeIBAN = "UA" + Guid.NewGuid().ToString().Replace("-", "").Substring(0, 27).ToUpper();
-
-            var newAccount = new Account
+            catch (Exception ex)
             {
-                UserId = request.UserId,
-                currency = request.Currency,
-                Balance = 0,
-                IBAN = fakeIBAN
-            };
-
-            _context.Accounts.Add(newAccount);
-            await _context.SaveChangesAsync();
-
-            return Ok(new {Message = "Account created successfully", AccountId = newAccount.Id, IBAN = newAccount.IBAN });
+                return BadRequest(new { Message = ex.Message });
+            }
         }
 
 
         [HttpGet("my-accounts/{userId}")]
         public async Task<IActionResult> GetUserAccounts(int userId)
         {
-            var accounts = await _context.Accounts
-                .Where(a => a.UserId == userId)
-                .Select(a => new
-                {
-                    a.Id,
-                    a.IBAN,
-                    a.Balance,
-                    a.currency
-                })
-                .ToListAsync();
-                return Ok(accounts);
+            var accounts = await _accountService.GetUserByIdAsync(userId);
+            return Ok(accounts);
         }
 
         [HttpPost("deposit")]
         public async Task<IActionResult> Deposit(DepositDto request)
         {
-            var Account = await _context.Accounts.FindAsync(request.AccountId);
-            if (Account == null)
+            try
             {
-                return NotFound("Account not found.");
+                var newBalance = await _accountService.DepositAsync(request);
+                return Ok(new { Message = "Deposit successful", NewBalance = newBalance });
             }
-            if(request.Amount <= 0)
+            catch (Exception ex)
             {
-                return BadRequest("Deposit amount must be greater than zero.");
+                return BadRequest(new { Message = ex.Message });
             }
-
-            Account.Balance += request.Amount;
-            await _context.SaveChangesAsync();
-            return Ok(new { Message = "Deposit successful", NewBalance = Account.Balance });
         }
     }
 }
