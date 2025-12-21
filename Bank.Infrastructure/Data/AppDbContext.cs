@@ -9,13 +9,19 @@ namespace Bank.Infrastructure.Data
         {
         }
 
-        
         public DbSet<User> Users { get; set; }
         public DbSet<Account> Accounts { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.Account)
+                .WithOne(a => a.User)
+                .HasForeignKey<Account>(a => a.UserId);
+                
+
            
             modelBuilder.Entity<Transaction>()
                 .HasOne(t => t.SenderAccount)
@@ -28,6 +34,9 @@ namespace Bank.Infrastructure.Data
                 .WithMany()
                 .HasForeignKey(t => t.ReceiverAccountId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<User>().HasQueryFilter(u => !u.IsDeleted);
+            modelBuilder.Entity<Account>().HasQueryFilter(a => !a.IsDeleted);
 
             base.OnModelCreating(modelBuilder);
         }

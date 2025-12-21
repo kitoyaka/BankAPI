@@ -37,6 +37,9 @@ namespace Bank.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
 
@@ -46,7 +49,8 @@ namespace Bank.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId")
+                        .IsUnique();
 
                     b.ToTable("Accounts");
                 });
@@ -99,6 +103,9 @@ namespace Bank.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("Password")
                         .IsRequired()
                         .HasColumnType("text");
@@ -111,8 +118,8 @@ namespace Bank.Infrastructure.Migrations
             modelBuilder.Entity("Bank.Core.Entities.Account", b =>
                 {
                     b.HasOne("Bank.Core.Entities.User", "User")
-                        .WithMany("Accounts")
-                        .HasForeignKey("UserId")
+                        .WithOne("Account")
+                        .HasForeignKey("Bank.Core.Entities.Account", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -140,7 +147,7 @@ namespace Bank.Infrastructure.Migrations
 
             modelBuilder.Entity("Bank.Core.Entities.User", b =>
                 {
-                    b.Navigation("Accounts");
+                    b.Navigation("Account");
                 });
 #pragma warning restore 612, 618
         }

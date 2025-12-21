@@ -8,6 +8,7 @@ public class Account
     public string currency { get; set; } = "UAH";
     public int UserId { get; set; }
     public User? User { get; set; }
+    public bool IsDeleted { get; set; } = false;
 
 }
 }

@@ -30,6 +30,20 @@ namespace Bank.API.Controllers
                 return BadRequest(new { Message = ex.Message });
             }
         }
+
+        [HttpDelete("delete/{userId}")]
+        public async Task<IActionResult> DeleteUser(int userId)
+        {
+            try
+            {
+                await _userService.DeleteUserAsync(userId);
+                return Ok(new { Message = "User deleted successfully" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
     }
 
 

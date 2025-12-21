@@ -3,7 +3,7 @@ using Bank.Infrastructure.Services;
 using Bank.Core.Interfaces;
 using Bank.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
-
+//dotnet run --project Bank.API/Bank.API.csproj
 
 
 var builder = WebApplication.CreateBuilder(args);

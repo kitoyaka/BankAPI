@@ -10,7 +10,8 @@ public class User
     public DateTime CreatedAt { get; set; }
     public required string Password { get; set; }
 
-    public List<Account> Accounts { get; set; } = new();
+    public Account? Account { get; set; } 
+    public bool IsDeleted { get; set; } = false;
 
 }
 }
