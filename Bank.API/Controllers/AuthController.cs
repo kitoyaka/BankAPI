@@ -3,38 +3,32 @@ using Bank.Core.Entities;
 using Bank.Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Bank.Core.Interfaces;
 
-namespace Bank.API.AddControllers
+namespace Bank.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly AppDbContext _context;
-        public AuthController(AppDbContext context)
+        private readonly IUserService _userService;
+        public AuthController(IUserService userService)
         {
-            _context = context;
+            _userService = userService;
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register(RegisterDto registerDto)
+        public async Task<IActionResult> Register(RegisterDto request)
         {
-            if(await _context.Users.AnyAsync(u => u.Email == registerDto.Email))
+            try
             {
-                return BadRequest("Email is already in use.");
+                await _userService.RegisterAsync(request);
+                return Ok(new { Message = "User registered successfully" });
             }
-
-            var user = new User
+            catch (Exception ex)
             {
-                Email = registerDto.Email,
-                FullName = registerDto.FullName,
-                Password = registerDto.Password,
-                CreatedAt = DateTime.UtcNow
-            };
-
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
-            return Ok("User registered successfully.");
+                return BadRequest(new { Message = ex.Message });
+            }
         }
     }
 

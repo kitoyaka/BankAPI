@@ -1,80 +1,46 @@
 using Bank.Core.DTOs;
-using Bank.Core.Entities;
-using Bank.Infrastructure.Data;
+using Bank.Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
-namespace Bank.API.AddControllers
+namespace Bank.API.Controllers 
 {
     [Route("api/[controller]")]
     [ApiController]
     public class TransactionController : ControllerBase
     {
-        private readonly AppDbContext _context;
-        public TransactionController(AppDbContext context)
+        private readonly ITransactionService _transactionService;
+
+        public TransactionController(ITransactionService transactionService)
         {
-            _context = context;
+            _transactionService = transactionService;
         }
+
         [HttpPost("transfer")]
         public async Task<IActionResult> Transfer(TransferDto request)
         {
-            var senderAccount = await _context.Accounts.FindAsync(request.SenderAccountId);
-            var receiverAccount = await _context.Accounts.FindAsync(request.ReceiverAccountId);
-            if(senderAccount == null || receiverAccount == null)
+            try
             {
-                return NotFound("One or both accounts not found.");
+                await _transactionService.TransferAsync(request);
+                return Ok(new { Message = "Transfer successful" });
             }
-            if(request.Amount <= 0)
+            catch (Exception ex)
             {
-                return BadRequest("Transfer amount must be greater than zero.");
+                return BadRequest(new { Message = ex.Message });
             }
-            if(senderAccount.Balance < request.Amount)
-            {
-                return BadRequest("Insufficient funds in sender's account.");
-            }
-            senderAccount.Balance -= request.Amount;
-            receiverAccount.Balance += request.Amount;
-            _context.Accounts.Update(senderAccount);
-            _context.Accounts.Update(receiverAccount);
-            _context.Transactions.Add(new Transaction
-            {
-                SenderAccountId = senderAccount.Id,
-                ReceiverAccountId = receiverAccount.Id,
-                Amount = request.Amount,
-                TransactionDate = DateTime.UtcNow
-            });
-            await _context.SaveChangesAsync();  
-
-            return Ok();
         }
 
-        [HttpGet("transactions/{accountId}")] 
-
-        public async Task<IActionResult> GetTransationsForAccount(int accountId)
+        [HttpGet("transactions/{accountId}")]
+        public async Task<IActionResult> GetTransactionsForAccount(int accountId)
         {
-            var account = await _context.Accounts.FindAsync(accountId);
-            if(account == null)
+            try
             {
-                return NotFound("Account not found.");
+                var transactions = await _transactionService.GetTransactionsForAccountAsync(accountId);
+                return Ok(transactions);
             }
-            var transaction = await _context.Transactions
-            .Where(t => t.SenderAccountId == accountId || t.ReceiverAccountId == accountId)
-            .OrderByDescending(t => t.TransactionDate)
-            .Select(t => new TransactionDto
+            catch (Exception ex)
             {
-                transactionId = t.Id,
-                Amount = t.Amount,
-                Date = t.TransactionDate,
-                SenderAccountId = t.SenderAccountId,
-                ReceiverAccountId = t.ReceiverAccountId
-            })
-            .ToListAsync();
-
-            return Ok(transaction);
+                return BadRequest(new { Message = ex.Message });
+            }
         }
-
-
     }
-
-
 }
