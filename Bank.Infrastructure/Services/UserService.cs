@@ -3,16 +3,23 @@ using Bank.Core.Entities;
 using Bank.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Bank.Core.Interfaces;
+using System.IdentityModel.Tokens.Jwt; 
+using System.Security.Claims; 
+using System.Text; 
+using Microsoft.IdentityModel.Tokens; 
+using Microsoft.Extensions.Configuration; 
 
 namespace Bank.Infrastructure.Services
 {
     public class UserService : IUserService
     {
         private readonly AppDbContext _context;
+        private readonly IConfiguration _configuration;
 
-        public UserService(AppDbContext context)
+        public UserService(AppDbContext context, IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
         }
 
         public async Task RegisterAsync(RegisterDto registerDto)
@@ -24,11 +31,17 @@ namespace Bank.Infrastructure.Services
 
             string passwordHash = BCrypt.Net.BCrypt.HashPassword(registerDto.Password);
 
+            string userRole = "Client";
+            if(registerDto.AdminSecretKey == "Super")
+            {
+                userRole = "Admin";
+            }
             var user = new User
             {
                 Email = registerDto.Email,
                 FullName = registerDto.FullName,
                 Password = passwordHash,
+                Role = userRole,
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -84,7 +97,31 @@ namespace Bank.Infrastructure.Services
             throw new Exception("Invalid email or password.");
         }
 
-        return "Login successful";
+        return GenerateJwtToken(user);
+        }
+
+        private string GenerateJwtToken(User user)
+        {
+            var key = _configuration["JwtSettings:Key"] ?? throw new Exception("JWT Key is not configured.");
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+
+            var Claims = new[]
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, user.Email),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim("userId", user.Id.ToString()),
+                new Claim(ClaimTypes.Role, user.Role)
+            };
+
+            var token = new JwtSecurityToken(
+                issuer: null,
+                audience: null,
+                claims: Claims,
+                expires: DateTime.Now.AddHours(2),
+                signingCredentials: credentials
+            );
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
     }
 }

@@ -4,6 +4,7 @@ using Bank.Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Bank.Core.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Bank.API.Controllers
 {
@@ -32,6 +33,7 @@ namespace Bank.API.Controllers
         }
 
         [HttpDelete("delete/{userId}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteUser(int userId)
         {
             try

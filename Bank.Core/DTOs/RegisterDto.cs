@@ -14,5 +14,7 @@ namespace Bank.Core.DTOs
 
         [Required]
         public string FullName {get;set;} = string.Empty;
+        
+        public string? AdminSecretKey { get; set; }
     }
 }
