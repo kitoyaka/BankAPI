@@ -44,6 +44,20 @@ namespace Bank.API.Controllers
                 return BadRequest(new { Message = ex.Message });
             }
         }
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login(LoginDto request)
+        {
+            try
+            {
+                var result = await _userService.LoginUserAsync(request.Email, request.Password);
+                return Ok(new { Message = result });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
     }
 
 

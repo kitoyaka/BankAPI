@@ -22,11 +22,13 @@ namespace Bank.Infrastructure.Services
                 throw new Exception("Email is already in use.");
             }
 
+            string passwordHash = BCrypt.Net.BCrypt.HashPassword(registerDto.Password);
+
             var user = new User
             {
                 Email = registerDto.Email,
                 FullName = registerDto.FullName,
-                Password = registerDto.Password,
+                Password = passwordHash,
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -51,16 +53,16 @@ namespace Bank.Infrastructure.Services
         }
 
         public async Task DeleteUserAsync(int userId)
-    {   
+        {   
     
         var user = await _context.Users
         .Include(u => u.Account)
         .FirstOrDefaultAsync(u => u.Id == userId);
 
         if (user == null)
-      {
+        {
         throw new Exception("User not found.");
-      }
+        }
 
 
         user.IsDeleted = true;
@@ -71,6 +73,18 @@ namespace Bank.Infrastructure.Services
         }
 
         await _context.SaveChangesAsync();
-    }
+        }
+
+
+        public async Task<string> LoginUserAsync(string email, string password)
+        {
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+        if (user == null || !BCrypt.Net.BCrypt.Verify(password, user.Password))
+        {
+            throw new Exception("Invalid email or password.");
+        }
+
+        return "Login successful";
+        }
     }
 }

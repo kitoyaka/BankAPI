@@ -6,5 +6,6 @@ namespace Bank.Core.Interfaces
     {
         Task RegisterAsync(RegisterDto registerDto);
         Task DeleteUserAsync(int userId);
+        Task<string> LoginUserAsync(string email, string password);
     }
 }

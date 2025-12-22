@@ -1,9 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "3XY6breSakI=",
+  "dgSpecHash": "SnGKESwmOyU=",
   "success": true,
   "projectFilePath": "C:\\Users\\rigry\\source\\repos\\BankAPI\\Bank.Infrastructure\\Bank.Infrastructure.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\rigry\\.nuget\\packages\\bcrypt.net-next\\4.0.3\\bcrypt.net-next.4.0.3.nupkg.sha512",
     "C:\\Users\\rigry\\.nuget\\packages\\microsoft.entityframeworkcore\\9.0.0\\microsoft.entityframeworkcore.9.0.0.nupkg.sha512",
     "C:\\Users\\rigry\\.nuget\\packages\\microsoft.entityframeworkcore.abstractions\\9.0.0\\microsoft.entityframeworkcore.abstractions.9.0.0.nupkg.sha512",
     "C:\\Users\\rigry\\.nuget\\packages\\microsoft.entityframeworkcore.analyzers\\9.0.0\\microsoft.entityframeworkcore.analyzers.9.0.0.nupkg.sha512",
