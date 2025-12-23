@@ -29,7 +29,7 @@ namespace Bank.API.Controllers
             catch (Exception ex)
             {
                 return BadRequest(new { Message = ex.Message });
-            }
+            }   
         }
 
         [HttpDelete("delete/{userId}")]

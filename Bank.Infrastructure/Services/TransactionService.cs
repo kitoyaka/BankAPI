@@ -18,7 +18,14 @@ namespace Bank.Infrastructure.Services
         
         public async Task TransferAsync(TransferDto request)
         {
-            
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+            if(request.SenderAccountId == request.ReceiverAccountId)
+            {
+                throw new Exception("Sender and receiver accounts must be different.");
+            }
+
             var senderAccount = await _context.Accounts.FindAsync(request.SenderAccountId);
             var receiverAccount = await _context.Accounts.FindAsync(request.ReceiverAccountId);
 
@@ -49,8 +56,17 @@ namespace Bank.Infrastructure.Services
                 Amount = request.Amount,
                 TransactionDate = DateTime.UtcNow
             });
+            
+            
 
             await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+            } 
+            catch(Exception)
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
 
         public async Task<IEnumerable<TransactionDto>> GetTransactionsForAccountAsync(int accountId)
