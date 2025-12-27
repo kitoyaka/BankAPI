@@ -21,44 +21,27 @@ namespace Bank.API.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterDto request)
         {
-            try
-            {
-                await _userService.RegisterAsync(request);
-                return Ok(new { Message = "User registered successfully" });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { Message = ex.Message });
-            }   
+        
+            await _userService.RegisterAsync(request);
+            return Ok(new { Message = "User registered successfully" }); 
         }
 
         [HttpDelete("delete/{userId}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteUser(int userId)
         {
-            try
-            {
-                await _userService.DeleteUserAsync(userId);
-                return Ok(new { Message = "User deleted successfully" });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { Message = ex.Message });
-            }
+            await _userService.DeleteUserAsync(userId);
+            return Ok(new { Message = "User deleted successfully" });
+            
         }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginDto request)
         {
-            try
-            {
-                var result = await _userService.LoginUserAsync(request.Email, request.Password);
-                return Ok(new { Message = result });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { Message = ex.Message });
-            }
+            
+            var result = await _userService.LoginUserAsync(request.Email, request.Password);
+            return Ok(new { Message = result });
+            
         }
     }
 

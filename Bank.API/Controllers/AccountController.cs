@@ -21,16 +21,8 @@ namespace Bank.API.Controllers
         [HttpPost("create")]
         public async Task<IActionResult> CreateAccount(CreateAccountDto request)
         {
-            
-            try
-            {
-                await _accountService.CreateAccountAsync(request);
-                return Ok(new { Message = "Account created successfully" });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { Message = ex.Message });
-            }
+            await _accountService.CreateAccountAsync(request);
+            return Ok(new { Message = "Account created successfully" });
         }
 
 
@@ -44,15 +36,8 @@ namespace Bank.API.Controllers
         [HttpPost("deposit")]
         public async Task<IActionResult> Deposit(DepositDto request)
         {
-            try
-            {
-                var newBalance = await _accountService.DepositAsync(request);
-                return Ok(new { Message = "Deposit successful", NewBalance = newBalance });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { Message = ex.Message });
-            }
+            var newBalance = await _accountService.DepositAsync(request);
+            return Ok(new { Message = "Deposit successful", NewBalance = newBalance });
         }
     }
 }
