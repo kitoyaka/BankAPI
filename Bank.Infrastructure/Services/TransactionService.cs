@@ -3,6 +3,7 @@ using Bank.Core.Entities;
 using Bank.Core.Interfaces;
 using Bank.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Bank.Infrastructure.Extensions;
 
 namespace Bank.Infrastructure.Services
 {
@@ -37,10 +38,11 @@ namespace Bank.Infrastructure.Services
             {
                 throw new Exception("Transfer amount must be greater than zero.");
             }
-            if (senderAccount.Balance < request.Amount)
+            if(!senderAccount.HasEnoughBalance(request.Amount))
             {
                 throw new Exception("Insufficient funds in sender's account.");
             }
+
 
             senderAccount.Balance -= request.Amount;
             receiverAccount.Balance += request.Amount;
