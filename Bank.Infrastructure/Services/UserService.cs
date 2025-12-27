@@ -8,6 +8,7 @@ using System.Security.Claims;
 using System.Text; 
 using Microsoft.IdentityModel.Tokens; 
 using Microsoft.Extensions.Configuration; 
+using Bank.Infrastructure.Extensions;
 
 namespace Bank.Infrastructure.Services
 {
@@ -24,45 +25,38 @@ namespace Bank.Infrastructure.Services
 
         public async Task RegisterAsync(RegisterDto registerDto)
         {
-            if (await _context.Users.AnyAsync(u => u.Email == registerDto.Email))
+
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                if (await _context.Users.AnyAsync(u => u.Email == registerDto.Email))
             {
                 throw new Exception("Email is already in use.");
             }
 
             string passwordHash = BCrypt.Net.BCrypt.HashPassword(registerDto.Password);
 
-            string userRole = "Client";
-            if(registerDto.AdminSecretKey == "Super")
-            {
-                userRole = "Admin";
-            }
-            var user = new User
-            {
-                Email = registerDto.Email,
-                FullName = registerDto.FullName,
-                Password = passwordHash,
-                Role = userRole,
-                CreatedAt = DateTime.UtcNow
-            };
+            string userRole = registerDto.AdminSecretKey == "Super" ? "Admin" : "Client";
+
+            var user = registerDto.ToUserEntity(passwordHash, userRole);
 
          
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
          
-            var fakeIBAN = "UA" + Guid.NewGuid().ToString().Replace("-", "").Substring(0, 27).ToUpper();
-            
-            var account = new Account
-            {
-                UserId = user.Id,
-                currency = "UAH",
-                Balance = 0,
-                IBAN = fakeIBAN
-            };
-
+            var account = user.CreateDefaultAccount();
            
             _context.Accounts.Add(account); 
             await _context.SaveChangesAsync();
+
+            await transaction.CommitAsync();
+            }
+            catch (Exception)
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
 
         public async Task DeleteUserAsync(int userId)

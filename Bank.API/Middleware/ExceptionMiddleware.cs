@@ -37,7 +37,8 @@ namespace Bank.API.Middleware
             {
                 statusCode = (int)HttpStatusCode.NotFound;
             }
-            else if(message.Contains("Insufficient funds") || message.Contains("must be greater than zero") || message.Contains("must be different"))
+            else if(message.Contains("Insufficient funds") || message.Contains("must be greater than zero") || message.Contains("must be different")
+            ||message.Contains("Invalid email or password"))
             {
                 statusCode = (int)HttpStatusCode.BadRequest;
             }
