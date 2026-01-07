@@ -28,7 +28,7 @@ namespace Bank.Infrastructure.Services
             var newAccount = new Account
             {
                 UserId = request.UserId,
-                currency = request.Currency,
+                Currency = request.Currency,
                 Balance = 0,
                 IBAN = fakeIBAN
             };

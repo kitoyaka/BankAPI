@@ -26,9 +26,32 @@ namespace Bank.Infrastructure.Extensions
             return new Account
             {
                 UserId = user.Id,
-                currency = "UAH",
+                Currency = "UAH",
                 Balance = 0,
                 IBAN = fakeIBAN
+            };
+        }
+
+        public static Transaction ToTransactionEntity(this TransferDto transferDto)
+        {
+            return new Transaction
+            {
+                SenderAccountId = transferDto.SenderAccountId,
+                ReceiverAccountId = transferDto.ReceiverAccountId,
+                Amount = transferDto.Amount,
+                TransactionDate = DateTime.UtcNow
+            };
+        }
+
+        public static TransactionDto ToTransactionDto(this Transaction transaction)
+        {
+            return new TransactionDto
+            {
+                TransactionId = transaction.Id,
+                SenderAccountId = transaction.SenderAccountId,
+                ReceiverAccountId = transaction.ReceiverAccountId,
+                Amount = transaction.Amount,
+                Date = transaction.TransactionDate
             };
         }
 

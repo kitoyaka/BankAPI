@@ -22,42 +22,25 @@ namespace Bank.Infrastructure.Services
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-            if(request.SenderAccountId == request.ReceiverAccountId)
-            {
-                throw new Exception("Sender and receiver accounts must be different.");
-            }
+            
 
             var senderAccount = await _context.Accounts.FindAsync(request.SenderAccountId);
             var receiverAccount = await _context.Accounts.FindAsync(request.ReceiverAccountId);
 
             if (senderAccount == null || receiverAccount == null)
             {
-                throw new Exception("One or both accounts not found.");
-            }
-            if (request.Amount <= 0)
-            {
-                throw new Exception("Transfer amount must be greater than zero.");
-            }
-            if(!senderAccount.HasEnoughBalance(request.Amount))
-            {
-                throw new Exception("Insufficient funds in sender's account.");
+                throw new Exception("Sender account not found.");
             }
 
-
-            senderAccount.Balance -= request.Amount;
-            receiverAccount.Balance += request.Amount;
+            senderAccount.Debit(request.Amount);
+            receiverAccount.Credit(request.Amount);
 
     
             _context.Accounts.Update(senderAccount);
             _context.Accounts.Update(receiverAccount);
 
-            _context.Transactions.Add(new Transaction
-            {
-                SenderAccountId = senderAccount.Id,
-                ReceiverAccountId = receiverAccount.Id,
-                Amount = request.Amount,
-                TransactionDate = DateTime.UtcNow
-            });
+            var transactionEntity = request.ToTransactionEntity();
+            _context.Transactions.Add(transactionEntity);
             
             
 
@@ -82,14 +65,7 @@ namespace Bank.Infrastructure.Services
             var transactions = await _context.Transactions
                 .Where(t => t.SenderAccountId == accountId || t.ReceiverAccountId == accountId)
                 .OrderByDescending(t => t.TransactionDate)
-                .Select(t => new TransactionDto
-                {
-                    transactionId = t.Id, 
-                    Amount = t.Amount,
-                    Date = t.TransactionDate,
-                    SenderAccountId = t.SenderAccountId,
-                    ReceiverAccountId = t.ReceiverAccountId
-                })
+                .Select(t => t.ToTransactionDto())
                 .ToListAsync();
 
             return transactions;
