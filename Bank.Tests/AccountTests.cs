@@ -34,4 +34,14 @@ public class AccountTests
 
         Assert.Equal(400, clientAccount.Balance);
     }
+
+    [Fact]
+    public void Credit_NegativeAmount_ShouldThrowException()
+    {
+        var userAccount = new Account { Balance = 500 };
+
+        var exception = Assert.Throws<Exception>(() => userAccount.Credit(-100));
+
+        Assert.Equal("Amount to credit must be greater than zero.", exception.Message);
+    }
 }
